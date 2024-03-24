@@ -9,55 +9,19 @@ public class ItemSpawner : MonoBehaviour
      public GameObject blackPrefab; // Prefab for black items
     public GameObject redPrefab; // Prefab for red items
     public GameObject bluePrefab; // Prefab for blue items
-    public GameObject gameArea;
     public int numberOfItems = 9; // Total number of items to spawn (divisible by 3 for equal distribution)
 
-
-    private void OnEnable()
+    void Start()
     {
-        SceneManager.sceneLoaded += OnSceneLoaded;
+        SceneManager.SetActiveScene(SceneManager.GetSceneByName("GameScene"));
+        SpawnItems();
     }
-
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-            GameObject eventSystem = GameObject.Find("EventSystem_" + scene.name);
-            if (eventSystem != null)
-            {
-                Debug.Log("Enable eventsystem: " + eventSystem);
-                eventSystem.SetActive(true); // Activate the Event System in the loaded scene
-                // GameObject.Find("EventSystem_MenuScene").SetActive(false);
-            }
-            // Instantiate objects or perform actions specific to this scene
-            if (scene.name == "GameScene") {
-                Debug.Log("GHJAJHGDHJKHJADGJHAGDHKJAGDHKJAGDHKJ");
-                SpawnItems();
-            }
-    
-    }
-    // void Start()
-    // {
-    //     if (SceneManager.GetActiveScene().name == "GameScene") {
-    //         SpawnItems();
-    //     }
-    // }
-    void Awake()
-    {
-        GameObject eventSystem = GameObject.Find("EventSystem_GameScene");
-        if (eventSystem.activeSelf == false) {
-            SceneManager.LoadScene(0);
-        }
-    }
-
-    void SpawnItems()
+    public void SpawnItems()
     {    
-        int hej = PlayerPrefs.GetInt("NumberOfBalls");
-        Debug.Log(hej);
+        // int hej = PlayerPrefs.GetInt("NumberOfBalls");
+        int hej = GameManager.Instance.NumberOfBalls;
         int itemsPerType = hej / 3; // Number of items for each color
+        InstantiateItem(blackPrefab);
 
         for (int i = 0; i < itemsPerType; i++)
         {

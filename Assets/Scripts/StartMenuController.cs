@@ -4,19 +4,24 @@ using UnityEngine.UI;
 
 public class StartMenuController : MonoBehaviour
 {
+    public RawImage paper;
+    public RawImage rock;
+    public RawImage scissor;
+    public RawImage background;
+
     public void StartGame()
     {
-        // Scene currentScene = SceneManager.GetActiveScene();
-
-        // // Unload the current scene asynchronously
-        // SceneManager.UnloadSceneAsync(currentScene);
         Slider slider = SliderManager.instance.slider;
         if (slider != null)
         {
-            PlayerPrefs.SetInt("NumberOfBalls", (int)slider.value);
-            PlayerPrefs.Save();
+            GameManager.Instance.NumberOfBalls = (int)slider.value;
         }
-        SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
-        // SceneManager.UnloadSceneAsync("MenuScene");
+        GameManager.Instance.PaperColor = paper.color;
+        GameManager.Instance.RockColor = rock.color;
+        GameManager.Instance.ScissorColor = scissor.color;
+        GameManager.Instance.BackgroundColor = background.color;
+
+
+        SceneLoader.Instance.SwitchScene("GameScene");
     }
 }

@@ -7,11 +7,12 @@ TagManager:
   - Rock
   - Paper
   - Scissor
+  - Wall
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Glow
   - Water
   - UI
   - 

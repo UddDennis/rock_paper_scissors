@@ -7,69 +7,99 @@ public class RandomMovement : MonoBehaviour
 {
     public float moveSpeed = 1f; // Speed of movement
     Slider slider; 
-    private Vector3 randomDirection; 
+    public Vector2 randomDirection; 
 
-    public SpriteRenderer spriteRenderer;
-    
+    private SpriteRenderer spriteRenderer;
+    private Rigidbody2D rb;
+
+    private Vector2 minWorldPos, maxWorldPos;
+    private float ballRadius, minX, maxX, minY, maxY;
+
     void Start()
     {
+        rb = GetComponent<Rigidbody2D>();
         slider = SliderManager.instance.slider;
         // Initialize the first random direction
         ChangeDirection();
         
         spriteRenderer = GetComponent<SpriteRenderer>();
+        
+        AssignColor();
+        minWorldPos = Camera.main.ScreenToWorldPoint(new Vector3(0, 0, 0));
+        maxWorldPos = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0));
+        ballRadius = transform.localScale.x / 2f; 
+        minX = minWorldPos.x + ballRadius;
+        maxX = maxWorldPos.x - ballRadius;
+        minY = minWorldPos.y + ballRadius;
+        maxY = maxWorldPos.y - ballRadius;
+    }
+    void AssignColor()
+    {
+        if (gameObject.tag == "Rock") {
+            spriteRenderer.color = GameManager.Instance.RockColor;
+        }
+        if (gameObject.tag == "Scissor") {
+            spriteRenderer.color = GameManager.Instance.ScissorColor;
+        }
+        if (gameObject.tag == "Paper") {
+            spriteRenderer.color = GameManager.Instance.PaperColor;
+        }
 
     }
 
     void Update()
-    {
-        
+    {        
         if (slider != null)
         {
             moveSpeed = slider.value;
         }
-        transform.Translate(randomDirection * moveSpeed * Time.deltaTime * Random.Range(0.5f, 0.8f));
 
+        CheckWallHit();
+        rb.velocity = rb.velocity.normalized * moveSpeed;
+    }
+
+    void CheckWallHit()
+    {
+        Vector2 ballPos = transform.position;
+
+        if (ballPos.x >= maxX && rb.velocity.x > 0) {
+            rb.velocity = Vector2.Reflect(rb.velocity, new Vector2(-1f, 0f));
+        }
+        if (ballPos.y <= minY && rb.velocity.y < 0) {
+            rb.velocity = Vector2.Reflect(rb.velocity,  new Vector2(0f, 1f));
+        }
+        if (ballPos.y >= maxY && rb.velocity.y > 0) {
+            rb.velocity = Vector2.Reflect(rb.velocity,  new Vector2(0f, -1f));
+        }
+        if (ballPos.x <= minX && rb.velocity.x < 0) {
+            rb.velocity = Vector2.Reflect(rb.velocity, new Vector2(1f, 0f) );
+        }
     }
 
     void ChangeDirection()
     {
-        // Generate a new random direction
-        randomDirection = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), 0f).normalized;
+        randomDirection = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized;
+        rb.velocity = randomDirection*moveSpeed;
     }
-
     void OnCollisionEnter2D(Collision2D collision)
-    {
-        Vector2 newDirection = Vector2.Reflect(randomDirection, collision.contacts[0].normal);
-        randomDirection = newDirection;
-
+    {   
         if (gameObject.tag == "Scissor" && collision.gameObject.CompareTag("Rock")) {
-            spriteRenderer.color = new Color(1, 0, 0, 1.0f);
+            spriteRenderer.color = GameManager.Instance.RockColor;
             gameObject.tag = "Rock";
         }
         if (gameObject.tag == "Rock" && collision.gameObject.CompareTag("Paper")) {
-            spriteRenderer.color = new Color(0, 1, 0, 1.0f);
+            spriteRenderer.color = GameManager.Instance.PaperColor;
             gameObject.tag = "Paper";
         }
         if (gameObject.tag == "Paper" && collision.gameObject.CompareTag("Scissor")) {
-            spriteRenderer.color = new Color(0, 0, 1, 1.0f);
+            spriteRenderer.color = GameManager.Instance.ScissorColor;
             gameObject.tag = "Scissor";
         }
+        
     }
 
     void OnMouseDown()
     {
-        Debug.Log("Object Clicked: " + gameObject.name);
         ChangeDirection();
-        // Perform actions when the object is clicked
-        // For example, you could change its color, scale, or perform any desired action.
-
-
-        Renderer renderer = GetComponent<Renderer>();
-        if (renderer != null)
-        {
-            // Change the color of the object's material
-            renderer.material.color = new Color(Random.value, Random.value, Random.value, 1.0f);
-        }
     }
 }
